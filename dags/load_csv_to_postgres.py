@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
 import psycopg2
+import json
+import pandas as pd
+from sqlalchemy import create_engine
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
@@ -16,10 +19,11 @@ with DAG(
     default_args=default_args,
     schedule_interval='@daily',
     catchup=False,
-    description='Transform JSON data for last month, group by orgunit_id, and push to PostgreSQL'
+    description='Transform JSON data, store in PostgreSQL, and generate JSON import file'
 ) as dag:
 
     def check_connection():
+        """Check database connectivity."""
         try:
             conn = psycopg2.connect(
                 host="host.docker.internal",
@@ -34,42 +38,25 @@ with DAG(
             raise e
 
     def transform_and_push():
-        import pandas as pd
-        import json
-        from datetime import datetime
-        from sqlalchemy import create_engine
-
-        # Load JSON from a file
+        """Transform JSON data and push it to PostgreSQL."""
+        # Load JSON from file
         with open("dags/rdt_kenya_consumption.json", "r") as file:
             data = json.load(file)
 
-        # Convert JSON data to a DataFrame (assuming the JSON has a 'rows' key)
         df = pd.DataFrame(data['rows'])
-        # Assign column names manually
         df.columns = ["dataelement", "period", "orgunit_id", "total_consumption"]
 
-        # Compute last month in YYYYMM format
+        # Compute last month
         today = datetime.today()
-        year = today.year
-        month = today.month
-        if month == 1:
-            last_month_year = year - 1
-            last_month = 12
-        else:
-            last_month_year = year
-            last_month = month - 1
-        last_month_str = f"{last_month_year}{last_month:02d}"
+        last_month = today.month - 1 or 12
+        last_year = today.year - (1 if last_month == 12 else 0)
+        last_month_str = f"{last_year}{last_month:02d}"
         print(f"Filtering data for period: {last_month_str}")
-
-        # Filter rows to only include those with period equal to last month
-        # df = df[df['period'] == last_month_str]
 
         # Convert total_consumption to numeric
         df["total_consumption"] = pd.to_numeric(df["total_consumption"])
 
-        # Group by orgunit_id ensuring that all rows with the same orgunit_id are aggregated into one.
-        # For each group, take the first dataelement and period, sum the total_consumption,
-        # and compute the average consumption.
+        # Aggregate data
         grouped_df = df.groupby('orgunit_id', as_index=False).agg(
             dataelement=('dataelement', 'first'),
             period=('period', 'first'),
@@ -77,23 +64,65 @@ with DAG(
             average_consumption=('total_consumption', 'mean')
         )
 
-        # Convert all column headers to lowercase
         grouped_df.columns = [col.lower() for col in grouped_df.columns]
-
-        # Remove decimals from average_consumption by rounding and converting to int
         grouped_df['average_consumption'] = grouped_df['average_consumption'].round(0).astype(int)
-
         grouped_df['period'] = last_month_str
-        # Reorder columns: dataelement, period, orgunit_id, total_consumption, average_consumption
-        grouped_df = grouped_df[['dataelement', 'period', 'orgunit_id', 'total_consumption', 'average_consumption']]
 
-        print("Aggregated DataFrame:")
-        print(grouped_df)
-
-        # Push the resulting DataFrame directly to PostgreSQL
+        # Store in PostgreSQL
         engine = create_engine('postgresql://postgres:masterclass@host.docker.internal:5432/rdt_data')
         grouped_df.to_sql('consumption_data', engine, if_exists='replace', index=False)
         print("Data successfully pushed to PostgreSQL!")
+
+    def export_to_json():
+        """Fetch records from PostgreSQL and generate JSON import file."""
+        conn = psycopg2.connect(
+            host="host.docker.internal",
+            database="rdt_data",
+            user="postgres",
+            password="masterclass"
+        )
+        cursor = conn.cursor()
+
+        # Fetch data
+        query = """
+        SELECT dataelement, period, orgunit_id, total_consumption, average_consumption
+        FROM consumption_data
+        """
+        cursor.execute(query)
+        records = cursor.fetchall()
+
+        # Construct JSON structure
+        data = {"dataValues": []}
+        optioncombo = 'QvctQfKAQn3'  # Category option 1
+        optioncombo2 = 'miM6uIJ2cWx'  # Category option 2
+
+        for record in records:
+            dataelement, period, orgunit_id, total_consumption, average_consumption = record
+
+            data["dataValues"].append({
+                "dataElement": dataelement,
+                "period": period,
+                "orgUnit": orgunit_id,
+                "categoryOptionCombo": optioncombo,
+                "value": average_consumption
+            })
+
+            data["dataValues"].append({
+                "dataElement": dataelement,
+                "period": period,
+                "orgUnit": orgunit_id,
+                "categoryOptionCombo": optioncombo2,
+                "value": average_consumption
+            })
+
+        # Save JSON file
+        with open('dags/amccalculation.json', 'w') as outfile:
+            json.dump(data, outfile, indent=4)
+
+        print("JSON import file successfully generated!")
+
+        cursor.close()
+        conn.close()
 
     task_check_connection = PythonOperator(
         task_id='check_connection',
@@ -105,4 +134,9 @@ with DAG(
         python_callable=transform_and_push
     )
 
-    task_check_connection >> task_transform_and_push
+    task_export_to_json = PythonOperator(
+        task_id='export_to_json',
+        python_callable=export_to_json
+    )
+
+    task_check_connection >> task_transform_and_push >> task_export_to_json
