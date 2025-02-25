@@ -44,7 +44,7 @@ cd JSON-to-PostgreSQL-Pipeline
 - **Airflow & PostgreSQL Containers:**  
   The DAG expects PostgreSQL to be accessible at:
   ```
-  postgresql://postgres:masterclass@host.docker.internal:5432/rdt_data
+  postgresql://postgres:yourpassword@yourhost/yourdatabase
   ```
 - **Python Dependencies:** The DAG uses libraries such as `pandas`, `sqlalchemy`, `psycopg2`, and `json`. These should be available in your Airflow Docker image.
 
