@@ -1,94 +1,100 @@
 JSON to PostgreSQL Pipeline
 
-This repository contains an Airflow DAG that transforms JSON consumption data and loads it directly into a PostgreSQL database. The DAG processes data from a JSON file (`rdt_kenya_consumption.json`), filters records for last month, groups data by `orgunit_id` (aggregating consumption), and pushes the results to a PostgreSQL table named `consumption_data`.
+This repository contains an Apache Airflow DAG that transforms JSON consumption data and loads it directly into a PostgreSQL database, then generates a JSON import file from the stored data. The DAG performs the following steps:
 
-## Repository Setup
+1. **Check Connection:** Verify connectivity to the PostgreSQL database.
+2. **Transform and Push:**  
+   - Load the JSON file (`rdt_kenya_consumption.json`) from the `dags/` directory.  
+   - Compute the last month in `YYYYMM` format.  
+   - Convert and aggregate the consumption data by grouping on `orgunit_id` (summing the total consumption and calculating the average consumption).  
+   - Overwrite the period field with the computed last month value.  
+   - Push the aggregated data into PostgreSQL (table: `consumption_data`).
+3. **Export to JSON:**  
+   - Query the PostgreSQL table for the aggregated data.  
+   - Generate a JSON file (`amccalculation.json`) with two category option combinations for each record.  
 
-Clone the repository and change to the project directory:
+Below is a flow diagram illustrating the pipeline.
 
-```bash
-git clone https://github.com/waitambatha/JSON-to-PostgreSQL-Pipeline
-cd JSON-to-PostgreSQL-Pipeline
-```
-
-## Pipeline Flow
-
-Below is a flow diagram illustrating the steps of the pipeline. This diagram uses Mermaid syntax. If GitHub's preview does not render it, you can use an online Mermaid live editor (such as [Mermaid Live Editor](https://mermaid.live/)).
+## Pipeline Flow Diagram
 
 ```mermaid
 flowchart TD
     A[Airflow DAG Trigger] --> B[Check PostgreSQL Connection]
     B --> C[Load JSON Data from rdt_kenya_consumption.json]
     C --> D[Compute Last Month in YYYYMM]
-    D --> E[Filter Data for Last Month]
-    E --> F[Convert total_consumption to Numeric]
-    F --> G[Group by orgunit_id]
-    G --> H[Aggregate total_consumption sum and average_consumption mean]
-    H --> I[Push Aggregated Data to PostgreSQL]
+    D --> E[Filter & Convert total_consumption]
+    E --> F[Aggregate Data by orgunit_id]
+    F --> G[Push Aggregated Data to PostgreSQL (consumption_data)]
+    G --> H[Export Data from PostgreSQL to JSON (amccalculation.json)]
+    H --> I[End DAG]
+```
+
+## Repository Setup
+
+Clone the repository and navigate into the project directory:
+
+```bash
+git clone https://github.com/waitambatha/JSON-to-PostgreSQL-Pipeline
+cd JSON-to-PostgreSQL-Pipeline
 ```
 
 ## Prerequisites
 
-- **Docker & Docker Compose:** Ensure Docker and Docker Compose are installed on your system.
-- **Airflow & PostgreSQL Containers:** This project assumes that Airflow is running on Docker Compose and that PostgreSQL is accessible at:
+- **Docker & Docker Compose:** Airflow and PostgreSQL run inside Docker containers.
+- **Airflow & PostgreSQL Containers:**  
+  The DAG expects PostgreSQL to be accessible at:
   ```
   postgresql://postgres:masterclass@host.docker.internal:5432/rdt_data
   ```
-- **Python Dependencies:** The DAG uses packages like `pandas`, `sqlalchemy`, and `psycopg2`. These are included in the Airflow Docker image or can be installed in your environment.
+- **Python Dependencies:** The DAG uses libraries such as `pandas`, `sqlalchemy`, `psycopg2`, and `json`. These should be available in your Airflow Docker image.
 
 ## Setup Instructions
 
-1. **Place the JSON File**
+1. **Place the JSON File**  
+   Ensure the file `rdt_kenya_consumption.json` is located in the `dags/` directory.
 
-   Ensure that the file `rdt_kenya_consumption.json` is located in the `dags/` directory of your project.
-
-2. **Configure Airflow & PostgreSQL**
-
-   Update the PostgreSQL connection string in the DAG file (`dags/your_dag_file.py`) if necessary. The DAG is set to connect to PostgreSQL using:
+2. **Configure PostgreSQL**  
+   Verify that the connection string in the DAG matches your PostgreSQL configuration. The current string is:
    ```
    postgresql://postgres:masterclass@host.docker.internal:5432/rdt_data
    ```
-   Ensure that your Docker Compose configuration allows Airflow to communicate with PostgreSQL (using `host.docker.internal` for example).
+   Adjust if necessary.
 
-3. **Start Airflow**
-
-   Launch your Docker containers using Docker Compose:
-
+3. **Start Docker Containers**  
+   Launch your Docker Compose environment:
    ```bash
    docker-compose up -d
    ```
 
-4. **Trigger the DAG**
-
-   Open the Airflow web UI (usually available at `http://localhost:8080`), locate the DAG named `json_to_postgres_pipeline`, and trigger it manually or wait for the scheduled run.
+4. **Trigger the DAG**  
+   Open the Airflow web UI (typically at [http://localhost:8080](http://localhost:8080)), find the DAG named `json_to_postgres_pipeline`, and trigger it manually or wait for the scheduled run.
 
 ## DAG Overview
 
-The DAG consists of the following tasks:
+The DAG consists of three main tasks:
 
-1. **check_connection**  
-   - Verifies that a connection to the PostgreSQL instance can be established.
+- **check_connection**  
+  Verifies that a connection to the PostgreSQL instance can be established.
 
-2. **transform_and_push**  
-   - **Load JSON Data:** Reads data from `rdt_kenya_consumption.json`.
-   - **Compute Last Month:** Determines the previous month in `YYYYMM` format.
-   - **Filter Data:** Filters rows to only include those matching last month's period.
-   - **Data Conversion:** Converts `total_consumption` to a numeric type.
-   - **Aggregation:** Groups the data by `orgunit_id`, summing the `total_consumption` and calculating the average consumption (rounded to remove decimals).
-   - **Push to PostgreSQL:** Loads the aggregated DataFrame directly into the PostgreSQL table `consumption_data`.
+- **transform_and_push**  
+  - **Load JSON Data:** Reads from `dags/rdt_kenya_consumption.json`.  
+  - **Compute Last Month:** Determines the previous month in `YYYYMM` format.  
+  - **Aggregate Data:** Converts `total_consumption` to numeric, groups data by `orgunit_id` (taking the first encountered `dataelement` and `period`), and calculates both the sum (as `total_consumption`) and mean (as `average_consumption`) for each group.  
+  - **Push to PostgreSQL:** The aggregated data is written to the table `consumption_data`.
+
+- **export_to_json**  
+  - **Query Data:** Fetches records from the `consumption_data` table.
+  - **Generate JSON:** Creates a JSON structure with two entries per record (each with a different category option combo) and writes the output to `dags/amccalculation.json`.
 
 ## Troubleshooting
 
 - **No Data in PostgreSQL:**  
-  If no data appears in PostgreSQL, verify that the JSON file contains records for the computed last month period (e.g., "202402" for February 2024). You can inspect the logs for the transformation task for debugging messages.
-  
+  If no data appears in the PostgreSQL table, confirm that your JSON file contains records for the computed last month (formatted as `YYYYMM`).
+
 - **Connection Issues:**  
-  Ensure the PostgreSQL connection string is correct and that the Docker networking is configured properly.
+  Verify the PostgreSQL connection string and ensure Docker networking allows Airflow to communicate with PostgreSQL (using `host.docker.internal`).
 
 ## Conclusion
 
-This pipeline demonstrates how to use Airflow (running on Docker) to transform JSON data and load it into PostgreSQL without generating intermediate CSV files. Modify and extend this pipeline to suit your data processing needs.
-
----
+This pipeline demonstrates how to use Apache Airflow (running on Docker) to transform JSON data, load it into PostgreSQL, and then export a JSON import file—all without generating intermediate CSV files. Modify or extend the pipeline to suit your data processing needs.
 ```
-
