@@ -8,10 +8,10 @@ This repository contains an Apache Airflow DAG that transforms JSON consumption 
    - Compute the last month in `YYYYMM` format.  
    - Convert and aggregate the consumption data by grouping on `orgunit_id` (summing the total consumption and calculating the average consumption).  
    - Overwrite the period field with the computed last month value.  
-   - Push the aggregated data into PostgreSQL (table: `consumption_data`).
+   - Push the aggregated data into PostgreSQL (table: consumption_data).
 3. **Export to JSON:**  
    - Query the PostgreSQL table for the aggregated data.  
-   - Generate a JSON file (`amccalculation.json`) with two category option combinations for each record.  
+   - Generate a JSON file (`amccalculation.json`) with two category option combinations for each record.
 
 Below is a flow diagram illustrating the pipeline.
 
@@ -24,8 +24,8 @@ flowchart TD
     C --> D[Compute Last Month in YYYYMM]
     D --> E[Filter & Convert total_consumption]
     E --> F[Aggregate Data by orgunit_id]
-    F --> G[Push Aggregated Data to PostgreSQL (consumption_data)]
-    G --> H[Export Data from PostgreSQL to JSON (amccalculation.json)]
+    F --> G[Push Aggregated Data to PostgreSQL table consumption_data]
+    G --> H[Export Data from PostgreSQL to JSON file amccalculation.json]
     H --> I[End DAG]
 ```
 
