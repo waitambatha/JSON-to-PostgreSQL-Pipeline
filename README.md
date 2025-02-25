@@ -1,7 +1,4 @@
-
-
-```markdown
-# JSON to PostgreSQL Pipeline
+JSON to PostgreSQL Pipeline
 
 This repository contains an Airflow DAG that transforms JSON consumption data and loads it directly into a PostgreSQL database. The DAG processes data from a JSON file (`rdt_kenya_consumption.json`), filters records for last month, groups data by `orgunit_id` (aggregating consumption), and pushes the results to a PostgreSQL table named `consumption_data`.
 
