@@ -1,4 +1,6 @@
 
+
+```markdown
 # JSON to PostgreSQL Pipeline
 
 This repository contains an Airflow DAG that transforms JSON consumption data and loads it directly into a PostgreSQL database. The DAG processes data from a JSON file (`rdt_kenya_consumption.json`), filters records for last month, groups data by `orgunit_id` (aggregating consumption), and pushes the results to a PostgreSQL table named `consumption_data`.
@@ -14,17 +16,17 @@ cd JSON-to-PostgreSQL-Pipeline
 
 ## Pipeline Flow
 
-Below is a flow diagram illustrating the steps of the pipeline. This diagram uses Mermaid syntax, which you can preview in supported editors or online tools.
+Below is a flow diagram illustrating the steps of the pipeline. This diagram uses Mermaid syntax. If GitHub's preview does not render it, you can use an online Mermaid live editor (such as [Mermaid Live Editor](https://mermaid.live/)).
 
 ```mermaid
 flowchart TD
     A[Airflow DAG Trigger] --> B[Check PostgreSQL Connection]
     B --> C[Load JSON Data from rdt_kenya_consumption.json]
-    C --> D[Compute Last Month (YYYYMM)]
+    C --> D[Compute Last Month in YYYYMM]
     D --> E[Filter Data for Last Month]
     E --> F[Convert total_consumption to Numeric]
     F --> G[Group by orgunit_id]
-    G --> H[Aggregate total_consumption (sum) & average_consumption (mean)]
+    G --> H[Aggregate total_consumption sum and average_consumption mean]
     H --> I[Push Aggregated Data to PostgreSQL]
 ```
 
@@ -81,7 +83,7 @@ The DAG consists of the following tasks:
 ## Troubleshooting
 
 - **No Data in PostgreSQL:**  
-  If no data appears in PostgreSQL, verify that the JSON file contains records for the computed last month period (e.g., `"202402"` for February 2024). You can inspect the logs for the transformation task for debugging messages.
+  If no data appears in PostgreSQL, verify that the JSON file contains records for the computed last month period (e.g., "202402" for February 2024). You can inspect the logs for the transformation task for debugging messages.
   
 - **Connection Issues:**  
   Ensure the PostgreSQL connection string is correct and that the Docker networking is configured properly.
@@ -91,4 +93,5 @@ The DAG consists of the following tasks:
 This pipeline demonstrates how to use Airflow (running on Docker) to transform JSON data and load it into PostgreSQL without generating intermediate CSV files. Modify and extend this pipeline to suit your data processing needs.
 
 ---
+```
 
