@@ -1,0 +1,239 @@
+{
+  "organisationUnits": [
+    {
+      "name": "Baringo County",
+      "id": "vvOK1BxTbet",
+      "level": 2
+    },
+    {
+      "name": "Bomet County",
+      "id": "HMNARUV2CW4",
+      "level": 2
+    },
+    {
+      "name": "Bungoma County",
+      "id": "KGHhQ5GLd4k",
+      "level": 2
+    },
+    {
+      "name": "Busia County",
+      "id": "Tvf1zgVZ0K4",
+      "level": 2
+    },
+    {
+      "name": "Elgeyo Marakwet County",
+      "id": "MqnLxQBigG0",
+      "level": 2
+    },
+    {
+      "name": "Embu County",
+      "id": "PFu8alU2KWG",
+      "level": 2
+    },
+    {
+      "name": "Garissa County",
+      "id": "uyOrcHZBpW0",
+      "level": 2
+    },
+    {
+      "name": "Homa Bay County",
+      "id": "nK0A12Q7MvS",
+      "level": 2
+    },
+    {
+      "name": "Isiolo County",
+      "id": "bzOfj0iwfDH",
+      "level": 2
+    },
+    {
+      "name": "Kajiado County",
+      "id": "Hsk1YV8kHkT",
+      "level": 2
+    },
+    {
+      "name": "Kakamega County",
+      "id": "BjC1xL40gHo",
+      "level": 2
+    },
+    {
+      "name": "Kericho County",
+      "id": "ihZsJ8alvtb",
+      "level": 2
+    },
+    {
+      "name": "Kiambu County",
+      "id": "qKzosKQPl6G",
+      "level": 2
+    },
+    {
+      "name": "Kilifi County",
+      "id": "nrI2khZx3d0",
+      "level": 2
+    },
+    {
+      "name": "Kirinyaga County",
+      "id": "Ulj33KBau7V",
+      "level": 2
+    },
+    {
+      "name": "Kisii County",
+      "id": "sPkRcDvhGWA",
+      "level": 2
+    },
+    {
+      "name": "Kisumu County",
+      "id": "tAbBVBbueqD",
+      "level": 2
+    },
+    {
+      "name": "Kitui County",
+      "id": "j8o6iO4Njsi",
+      "level": 2
+    },
+    {
+      "name": "Kwale County",
+      "id": "N7YETT3A9r1",
+      "level": 2
+    },
+    {
+      "name": "Laikipia County",
+      "id": "xuFdFy6t9AH",
+      "level": 2
+    },
+    {
+      "name": "Lamu County",
+      "id": "NjWSbQTwys4",
+      "level": 2
+    },
+    {
+      "name": "Machakos County",
+      "id": "yhCUgGcCcOo",
+      "level": 2
+    },
+    {
+      "name": "Makueni County",
+      "id": "BoDytkJQ4Qi",
+      "level": 2
+    },
+    {
+      "name": "Mandera County",
+      "id": "R6f9znhg37c",
+      "level": 2
+    },
+    {
+      "name": "Marsabit County",
+      "id": "Eey8fT4Im3y",
+      "level": 2
+    },
+    {
+      "name": "Meru County",
+      "id": "Y52XNJ50hYb",
+      "level": 2
+    },
+    {
+      "name": "Migori County",
+      "id": "fVra3Pwta0Q",
+      "level": 2
+    },
+    {
+      "name": "Mombasa County",
+      "id": "wsBsC6gjHvn",
+      "level": 2
+    },
+    {
+      "name": "Muranga County",
+      "id": "ahwTMNAJvrL",
+      "level": 2
+    },
+    {
+      "name": "Nairobi County",
+      "id": "jkG3zaihdSs",
+      "level": 2
+    },
+    {
+      "name": "Nakuru County",
+      "id": "ob6SxuRcqU4",
+      "level": 2
+    },
+    {
+      "name": "Nandi County",
+      "id": "t0J75eHKxz5",
+      "level": 2
+    },
+    {
+      "name": "Narok County",
+      "id": "kqJ83J2D72s",
+      "level": 2
+    },
+    {
+      "name": "Nyamira County",
+      "id": "uepLTG8wGWJ",
+      "level": 2
+    },
+    {
+      "name": "Nyandarua County",
+      "id": "mYZacFNIB3h",
+      "level": 2
+    },
+    {
+      "name": "Nyeri County",
+      "id": "ptWVfaCIdVx",
+      "level": 2
+    },
+    {
+      "name": "Samburu County",
+      "id": "o36zCRjSd4G",
+      "level": 2
+    },
+    {
+      "name": "Siaya County",
+      "id": "u4t9H8XyU9P",
+      "level": 2
+    },
+    {
+      "name": "Taita Taveta County",
+      "id": "QyGNX2DpR4h",
+      "level": 2
+    },
+    {
+      "name": "Tana River County",
+      "id": "JsH2bnvNt2d",
+      "level": 2
+    },
+    {
+      "name": "Tharaka Nithi County",
+      "id": "T4urHM47nlm",
+      "level": 2
+    },
+    {
+      "name": "Trans Nzoia County",
+      "id": "mThvosEflAU",
+      "level": 2
+    },
+    {
+      "name": "Turkana County",
+      "id": "kphDeKClFch",
+      "level": 2
+    },
+    {
+      "name": "Uasin Gishu County",
+      "id": "pZqQRRW7PHP",
+      "level": 2
+    },
+    {
+      "name": "Vihiga County",
+      "id": "sANMZ3lpqGs",
+      "level": 2
+    },
+    {
+      "name": "Wajir County",
+      "id": "CeLsrJOH0g9",
+      "level": 2
+    },
+    {
+      "name": "West Pokot County",
+      "id": "XWALbfAPa6n",
+      "level": 2
+    }
+  ]
+}
