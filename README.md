@@ -4,7 +4,7 @@ This repository contains an Airflow DAG that transforms JSON consumption data an
 
 ## Pipeline Flow
 
-```mermaid
+
 flowchart TD
     A[Airflow DAG Trigger] --> B[Check PostgreSQL Connection]
     B --> C[Load JSON Data]
@@ -13,7 +13,7 @@ flowchart TD
     E --> F[Group by orgunit_id]
     F --> G[Aggregate total_consumption (sum) & average_consumption (mean)]
     G --> H[Push Aggregated Data to PostgreSQL]
-```
+
 
 ## Prerequisites
 
